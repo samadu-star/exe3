@@ -1,0 +1,38 @@
+name: my-first-workflow
+# To get a trigger on every push in this repo in any branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    name: Running Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5.0.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Unit Tests
+        run: |
+          mkdir reports/
+          pytest --junitxml=reports/unit-test-results.xml --cov=. --cov-report=xml --cov-report=term-missing -v
+            
+      - name: upload Code Coverage Report
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          name: unit-test-report
+          path: reports/
